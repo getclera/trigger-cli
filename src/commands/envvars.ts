@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { apiRequest } from "../utils/client.js";
+import { apiRequest, resolveProject, resolveEnv } from "../utils/client.js";
 import {
 	printJson,
 	printTable,
@@ -18,13 +18,13 @@ export function registerEnvvarsCommands(program: Command): void {
 		.command("list")
 		.alias("ls")
 		.description("List all environment variables")
-		.requiredOption("-p, --project <ref>", "Project ref (proj_...)")
-		.requiredOption("-e, --env <env>", "Environment (dev, staging, prod)")
+		.option("-p, --project <ref>", "Project ref (or TRIGGER_PROJECT_REF)")
+		.option("-e, --env <env>", "Environment (or TRIGGER_ENV)")
 		.option("--json", "Output as JSON")
 		.action(async (opts) => {
 			try {
 				const data = await apiRequest<{ name: string; value: string }[]>(
-					`/api/v1/projects/${opts.project}/envvars/${opts.env}`,
+					`/api/v1/projects/${resolveProject(opts.project)}/envvars/${resolveEnv(opts.env)}`,
 				);
 				if (opts.json) {
 					printJson(data);
@@ -46,8 +46,8 @@ export function registerEnvvarsCommands(program: Command): void {
 	envvars
 		.command("get <name>")
 		.description("Retrieve a specific environment variable")
-		.requiredOption("-p, --project <ref>", "Project ref (proj_...)")
-		.requiredOption("-e, --env <env>", "Environment (dev, staging, prod)")
+		.option("-p, --project <ref>", "Project ref (or TRIGGER_PROJECT_REF)")
+		.option("-e, --env <env>", "Environment (or TRIGGER_ENV)")
 		.option("--json", "Output as JSON")
 		.action(async (name, opts) => {
 			try {
@@ -68,15 +68,15 @@ export function registerEnvvarsCommands(program: Command): void {
 	envvars
 		.command("create")
 		.description("Create an environment variable")
-		.requiredOption("-p, --project <ref>", "Project ref (proj_...)")
-		.requiredOption("-e, --env <env>", "Environment (dev, staging, prod)")
+		.option("-p, --project <ref>", "Project ref (or TRIGGER_PROJECT_REF)")
+		.option("-e, --env <env>", "Environment (or TRIGGER_ENV)")
 		.requiredOption("-n, --name <name>", "Variable name")
 		.requiredOption("-v, --value <value>", "Variable value")
 		.option("--json", "Output as JSON")
 		.action(async (opts) => {
 			try {
 				const data = await apiRequest(
-					`/api/v1/projects/${opts.project}/envvars/${opts.env}`,
+					`/api/v1/projects/${resolveProject(opts.project)}/envvars/${resolveEnv(opts.env)}`,
 					{
 						method: "POST",
 						body: { name: opts.name, value: opts.value },
@@ -96,8 +96,8 @@ export function registerEnvvarsCommands(program: Command): void {
 	envvars
 		.command("update <name>")
 		.description("Update an environment variable")
-		.requiredOption("-p, --project <ref>", "Project ref (proj_...)")
-		.requiredOption("-e, --env <env>", "Environment (dev, staging, prod)")
+		.option("-p, --project <ref>", "Project ref (or TRIGGER_PROJECT_REF)")
+		.option("-e, --env <env>", "Environment (or TRIGGER_ENV)")
 		.requiredOption("-v, --value <value>", "New value")
 		.option("--json", "Output as JSON")
 		.action(async (name, opts) => {
@@ -121,8 +121,8 @@ export function registerEnvvarsCommands(program: Command): void {
 		.command("delete <name>")
 		.alias("rm")
 		.description("Delete an environment variable")
-		.requiredOption("-p, --project <ref>", "Project ref (proj_...)")
-		.requiredOption("-e, --env <env>", "Environment (dev, staging, prod)")
+		.option("-p, --project <ref>", "Project ref (or TRIGGER_PROJECT_REF)")
+		.option("-e, --env <env>", "Environment (or TRIGGER_ENV)")
 		.option("--force", "Skip confirmation")
 		.option("--json", "Output as JSON")
 		.action(async (name, opts) => {
@@ -151,8 +151,8 @@ export function registerEnvvarsCommands(program: Command): void {
 	envvars
 		.command("import")
 		.description("Import multiple environment variables")
-		.requiredOption("-p, --project <ref>", "Project ref (proj_...)")
-		.requiredOption("-e, --env <env>", "Environment (dev, staging, prod)")
+		.option("-p, --project <ref>", "Project ref (or TRIGGER_PROJECT_REF)")
+		.option("-e, --env <env>", "Environment (or TRIGGER_ENV)")
 		.requiredOption("--vars <pairs...>", "KEY=VALUE pairs (space-separated)")
 		.option("--override", "Override existing variables")
 		.option("--json", "Output as JSON")

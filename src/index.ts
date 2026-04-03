@@ -40,10 +40,16 @@ if (process.argv.length <= 2) {
 	);
 	console.log(chalk.bold("Environment variables:"));
 	console.log(
-		`  ${chalk.cyan("TRIGGER_SECRET_KEY")}  ${chalk.dim("(required)")}  Your secret API key (tr_dev_..., tr_prod_..., tr_stg_...)`,
+		`  ${chalk.cyan("TRIGGER_SECRET_KEY")}   ${chalk.dim("(required)")}  Your secret API key (tr_dev_..., tr_prod_..., tr_stg_...)`,
 	);
 	console.log(
-		`  ${chalk.cyan("TRIGGER_API_URL")}     ${chalk.dim("(optional)")}  API base URL (default: https://api.trigger.dev)`,
+		`  ${chalk.cyan("TRIGGER_PROJECT_REF")}  ${chalk.dim("(optional)")}  Default project ref (proj_...) — avoids -p on every call`,
+	);
+	console.log(
+		`  ${chalk.cyan("TRIGGER_ENV")}          ${chalk.dim("(optional)")}  Default environment (dev, staging, prod) — avoids -e on every call`,
+	);
+	console.log(
+		`  ${chalk.cyan("TRIGGER_API_URL")}      ${chalk.dim("(optional)")}  API base URL (default: https://api.trigger.dev)`,
 	);
 	console.log();
 	program.outputHelp();
