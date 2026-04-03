@@ -3,6 +3,8 @@ import chalk from "chalk";
 interface TriggerConfig {
 	apiKey: string;
 	baseUrl: string;
+	projectRef: string | undefined;
+	env: string | undefined;
 }
 
 let cachedConfig: TriggerConfig | null = null;
@@ -12,6 +14,8 @@ export function getConfig(): TriggerConfig {
 
 	const apiKey = process.env.TRIGGER_SECRET_KEY || process.env.TRIGGER_API_KEY;
 	const baseUrl = process.env.TRIGGER_API_URL || "https://api.trigger.dev";
+	const projectRef = process.env.TRIGGER_PROJECT_REF;
+	const env = process.env.TRIGGER_ENV;
 
 	if (!apiKey) {
 		console.error(
@@ -22,8 +26,38 @@ export function getConfig(): TriggerConfig {
 		process.exit(1);
 	}
 
-	cachedConfig = { apiKey, baseUrl };
+	cachedConfig = { apiKey, baseUrl, projectRef, env };
 	return cachedConfig;
+}
+
+/**
+ * Resolve project ref: CLI flag takes precedence, then env var default.
+ */
+export function resolveProject(cliValue: string | undefined): string {
+	const val = cliValue || getConfig().projectRef;
+	if (!val) {
+		console.error(
+			chalk.red(
+				"Error: Project ref required. Use -p/--project or set TRIGGER_PROJECT_REF",
+			),
+		);
+		process.exit(1);
+	}
+	return val;
+}
+
+/**
+ * Resolve environment: CLI flag takes precedence, then env var default.
+ */
+export function resolveEnv(cliValue: string | undefined): string {
+	const val = cliValue || getConfig().env;
+	if (!val) {
+		console.error(
+			chalk.red("Error: Environment required. Use -e/--env or set TRIGGER_ENV"),
+		);
+		process.exit(1);
+	}
+	return val;
 }
 
 interface RequestOptions {
